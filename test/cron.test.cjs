@@ -6,6 +6,7 @@ const { CronExpressionService } = require('../dist/modules/cron/cron-expression.
 const { isRetryableTaskError, TaskNonRetryableError } = require('../dist/modules/cron/handlers/task-handler.interface')
 const constants = require('../dist/modules/cron/cron.constants')
 const { CurrencyExchangeTaskHandler } = require('../dist/modules/cron/handlers/currency-exchange.handler')
+const { SrmWalletSyncTaskHandler } = require('../dist/modules/cron/handlers/srm-wallet-sync.handler')
 const { getActiveRequestId } = require('@wlisfes/chat-web-base-schema/request-context')
 
 const logger = { log() {}, warn() {}, error() {} }
@@ -236,4 +237,22 @@ test('汇率已存在时说明跳过数量；兼容旧版只返回 date、count 
     assert.equal(existing.summary, '2026-10-12 汇率已存在，跳过 30 个币种（来源 Open Exchange Rates，外部返回 170 个）')
     const legacy = await createCurrencyHandler({ date: '2026-10-12', count: 0, list: [] }).execute()
     assert.equal(legacy.summary, '2026-10-12 没有需要新增的币种汇率')
+})
+
+function createWalletHandler(response) {
+    const financeFeignClient = { httpBaseFinanceSyncSrmUserWallet: async () => response }
+    const configService = { get: key => (key === 'gateway.feign.service_token' ? 'service-token' : undefined) }
+    return new SrmWalletSyncTaskHandler(configService, financeFeignClient, logger)
+}
+
+test('供应商余额同步任务：每分钟执行，结果只保存统计数量', async () => {
+    const definition = constants.TASK_CRON_DEFINITIONS.find(item => item.handler === 'datetask-sync-srm-wallet-balance')
+    assert.equal(definition.cron, '0 * * * * *')
+    assert.equal(definition.module, 'TASK_FINANCE')
+    const next = new CronExpressionService().getNextRun(definition.cron, new Date(2026, 9, 12, 8, 0, 10))
+    assert.deepEqual([next.getHours(), next.getMinutes(), next.getSeconds()], [8, 1, 0])
+    const result = await createWalletHandler({ total: 4, updated: 1, unchanged: 2, restored: 1, invalidUserKeyIds: [10241009] }).execute()
+    assert.equal(result.summary, '共 4 个钱包，更新 1 个，补齐 Redis 1 个，1 个 Redis 余额格式错误：10241009')
+    const idle = await createWalletHandler({ total: 4, updated: 0, unchanged: 4, restored: 0, invalidUserKeyIds: [] }).execute()
+    assert.equal(idle.summary, '共 4 个钱包，余额均已一致')
 })
