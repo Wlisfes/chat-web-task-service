@@ -1,7 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { InjectRepository, Repository } from '@wlisfes/chat-web-base-schema/database'
-import * as Schema from '@wlisfes/chat-web-base-schema/chat-web-task-mysql'
 import { TASK_CRON_DEFINITIONS, TASK_SYSTEM_UID } from '@/modules/cron/cron.constants'
+import * as Schema from '@wlisfes/chat-web-base-schema/chat-web-task-mysql'
 
 /**
  * 幂等写入系统内置周期任务。
