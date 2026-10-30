@@ -47,7 +47,7 @@ export const TASK_CRON_DEFINITIONS: ReadonlyArray<
         taskName: '供应商余额同步定时任务',
         module: Schema.TbTaskCronModule.TASK_FINANCE,
         handler: SRM_WALLET_SYNC_TASK_HANDLER,
-        comment: '每分钟触发 Finance 服务把 Redis 中的供应商钱包余额同步到钱包表',
+        comment: '每分钟触发 Finance 服务把 Redis 中发生变化的供应商钱包余额同步到钱包表',
         cron: SRM_WALLET_SYNC_TASK_CRON,
         status: Schema.TbTaskCronStatus.ENABLE,
         body: {},
