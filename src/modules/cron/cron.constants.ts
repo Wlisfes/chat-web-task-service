@@ -24,6 +24,18 @@ export const SRM_WALLET_SYNC_TASK_CRON = '0 * * * * *'
 /** 余额同步每分钟都会再次执行，失败只重试 1 次，避免重试堆积。 */
 export const SRM_WALLET_SYNC_TASK_MAX_ATTEMPTS = 2
 
+/** 短信任务入队扫描的稳定标识。 */
+export const SMS_TASK_ENQUEUE_TASK_ID = '2149446185344106498'
+
+/** 短信任务入队扫描处理器标识。 */
+export const SMS_TASK_ENQUEUE_TASK_HANDLER = 'datetask-enqueue-sms-task'
+
+/** 每小时第 0 分 0 秒执行一次。 */
+export const SMS_TASK_ENQUEUE_TASK_CRON = '0 0 * * * *'
+
+/** 下一小时会再次扫描，失败只重试 1 次。 */
+export const SMS_TASK_ENQUEUE_TASK_MAX_ATTEMPTS = 2
+
 /** 单次执行默认最大尝试次数（含首次）。 */
 export const TASK_DEFAULT_MAX_ATTEMPTS = 8
 
@@ -52,6 +64,17 @@ export const TASK_CRON_DEFINITIONS: ReadonlyArray<
         status: Schema.TbTaskCronStatus.ENABLE,
         body: {},
         maxAttempts: SRM_WALLET_SYNC_TASK_MAX_ATTEMPTS
+    },
+    {
+        taskId: SMS_TASK_ENQUEUE_TASK_ID,
+        taskName: '短信任务入队扫描',
+        module: Schema.TbTaskCronModule.TASK_SYSTEM,
+        handler: SMS_TASK_ENQUEUE_TASK_HANDLER,
+        comment: '每小时触发 SMS 服务，把进入 3 小时发送窗口的待发送任务推入短信任务队列',
+        cron: SMS_TASK_ENQUEUE_TASK_CRON,
+        status: Schema.TbTaskCronStatus.ENABLE,
+        body: {},
+        maxAttempts: SMS_TASK_ENQUEUE_TASK_MAX_ATTEMPTS
     }
 ]
 
