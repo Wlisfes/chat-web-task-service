@@ -39,9 +39,18 @@ export const SMS_TASK_ENQUEUE_TASK_MAX_ATTEMPTS = 2
 /** 单次执行默认最大尝试次数（含首次）。 */
 export const TASK_DEFAULT_MAX_ATTEMPTS = 8
 
+/** 新建任务默认保留 7 天已结束的运行日志。 */
+export const TASK_DEFAULT_LOG_RETENTION = Schema.TbTaskCronLogRetention.DAY_7
+
+/** 按任务配置清理过期运行日志的间隔。 */
+export const TASK_LOG_PURGE_INTERVAL_MS = 60 * 60 * 1000
+
 /** 系统内置周期任务定义；服务启动时幂等写入，页面不提供新增和删除入口。 */
 export const TASK_CRON_DEFINITIONS: ReadonlyArray<
-    Pick<Schema.TbTaskCron, 'taskId' | 'taskName' | 'module' | 'handler' | 'comment' | 'cron' | 'status' | 'body' | 'maxAttempts'>
+    Pick<
+        Schema.TbTaskCron,
+        'taskId' | 'taskName' | 'module' | 'handler' | 'comment' | 'cron' | 'status' | 'body' | 'maxAttempts' | 'logRetention'
+    >
 > = [
     {
         taskId: CURRENCY_EXCHANGE_TASK_ID,
@@ -52,7 +61,8 @@ export const TASK_CRON_DEFINITIONS: ReadonlyArray<
         cron: CURRENCY_EXCHANGE_TASK_CRON,
         status: Schema.TbTaskCronStatus.ENABLE,
         body: {},
-        maxAttempts: TASK_DEFAULT_MAX_ATTEMPTS
+        maxAttempts: TASK_DEFAULT_MAX_ATTEMPTS,
+        logRetention: TASK_DEFAULT_LOG_RETENTION
     },
     {
         taskId: SRM_WALLET_SYNC_TASK_ID,
@@ -63,7 +73,8 @@ export const TASK_CRON_DEFINITIONS: ReadonlyArray<
         cron: SRM_WALLET_SYNC_TASK_CRON,
         status: Schema.TbTaskCronStatus.ENABLE,
         body: {},
-        maxAttempts: SRM_WALLET_SYNC_TASK_MAX_ATTEMPTS
+        maxAttempts: SRM_WALLET_SYNC_TASK_MAX_ATTEMPTS,
+        logRetention: TASK_DEFAULT_LOG_RETENTION
     },
     {
         taskId: SMS_TASK_ENQUEUE_TASK_ID,
@@ -74,7 +85,8 @@ export const TASK_CRON_DEFINITIONS: ReadonlyArray<
         cron: SMS_TASK_ENQUEUE_TASK_CRON,
         status: Schema.TbTaskCronStatus.ENABLE,
         body: {},
-        maxAttempts: SMS_TASK_ENQUEUE_TASK_MAX_ATTEMPTS
+        maxAttempts: SMS_TASK_ENQUEUE_TASK_MAX_ATTEMPTS,
+        logRetention: TASK_DEFAULT_LOG_RETENTION
     }
 ]
 

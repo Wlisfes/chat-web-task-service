@@ -6,7 +6,7 @@ import * as Schema from '@wlisfes/chat-web-base-schema/chat-web-task-mysql'
 /**
  * 幂等写入系统内置周期任务。
  *
- * 已存在的任务只同步名称、模块、处理器和描述；Cron、状态和最大尝试次数允许在管理端调整，启动时不覆盖。
+ * 已存在的任务只同步名称、模块、处理器和描述；Cron、状态、最大尝试次数和日志保留时长允许在管理端调整，启动时不覆盖。
  */
 @Injectable()
 export class CronInitializerService implements OnModuleInit {

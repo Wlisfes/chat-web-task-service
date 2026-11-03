@@ -258,3 +258,21 @@ test('供应商余额同步任务：每分钟执行，结果只保存统计数�
     const empty = await createWalletHandler({ total: 0, updated: 0, unchanged: 0, restored: 0, invalidUserKeyIds: [] }).execute()
     assert.equal(empty.summary, '本轮无待同步余额')
 })
+
+test('过期运行日志只删除已结束且超过保留时长的记录', async () => {
+    const { CronService } = require('../dist/modules/cron/cron.service')
+    const deleted = []
+    const executionRepository = {
+        delete: async criteria => {
+            deleted.push(criteria)
+        }
+    }
+    const service = new CronService({}, executionRepository, {}, {}, {}, {}, logger)
+    const now = new Date('2026-11-03T12:00:00.000Z')
+    await service.purgeTaskLogs('2149446185344106496', '24h', now)
+    await service.purgeTaskLogs('2149446185344106496', 'forever', now)
+    assert.equal(deleted.length, 1)
+    assert.equal(deleted[0].taskId, '2149446185344106496')
+    assert.deepEqual(deleted[0].status._value, ['success', 'failed'])
+    assert.equal(deleted[0].createTime._value.toISOString(), '2026-11-02T12:00:00.000Z')
+})
