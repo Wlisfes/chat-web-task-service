@@ -259,18 +259,31 @@ test('供应商余额同步任务：每分钟执行，结果只保存统计数�
     assert.equal(empty.summary, '本轮无待同步余额')
 })
 
+test('运行日志清理写死在每天 02:30:00，不进入任务表', () => {
+    const { EXECUTION_LOG_PURGE_CRON } = require('../dist/modules/cron/handlers/execution-log-purge.handler')
+    const { TASK_CRON_DEFINITIONS } = require('../dist/modules/cron/cron.constants')
+    assert.equal(EXECUTION_LOG_PURGE_CRON, '0 30 2 * * *')
+    assert.equal(
+        TASK_CRON_DEFINITIONS.some(item => item.handler === 'datetask-purge-execution-log'),
+        false
+    )
+    const next = new CronExpressionService().getNextRun(EXECUTION_LOG_PURGE_CRON, new Date(2026, 10, 3, 2, 29, 59))
+    assert.deepEqual([next.getHours(), next.getMinutes(), next.getSeconds()], [2, 30, 0])
+})
+
 test('过期运行日志只删除已结束且超过保留时长的记录', async () => {
-    const { CronService } = require('../dist/modules/cron/cron.service')
+    const { ExecutionLogPurgeTaskHandler } = require('../dist/modules/cron/handlers/execution-log-purge.handler')
     const deleted = []
     const executionRepository = {
         delete: async criteria => {
             deleted.push(criteria)
+            return { affected: 1 }
         }
     }
-    const service = new CronService({}, executionRepository, {}, {}, {}, {}, logger)
+    const handler = new ExecutionLogPurgeTaskHandler({}, executionRepository, logger)
     const now = new Date('2026-11-03T12:00:00.000Z')
-    await service.purgeTaskLogs('2149446185344106496', '24h', now)
-    await service.purgeTaskLogs('2149446185344106496', 'forever', now)
+    assert.equal(await handler.purgeTaskLogs('2149446185344106496', '24h', now), 1)
+    assert.equal(await handler.purgeTaskLogs('2149446185344106496', 'forever', now), 0)
     assert.equal(deleted.length, 1)
     assert.equal(deleted[0].taskId, '2149446185344106496')
     assert.deepEqual(deleted[0].status._value, ['success', 'failed'])

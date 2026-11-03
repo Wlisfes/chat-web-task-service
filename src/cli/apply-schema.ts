@@ -49,7 +49,9 @@ export async function ensureTaskCronLogRetentionColumn(connection: mysql.Connect
     const column = rows[0]
     const columnDefault = String(column.columnDefault ?? '').replace(/^'(.*)'$/, '$1')
     const aligned = String(column.columnType).toLowerCase() === 'varchar(32)' && column.isNullable === 'NO' && columnDefault === '7d'
-    if (aligned) return false
+    if (aligned) {
+        return false
+    }
 
     await connection.query(
         `ALTER TABLE \`tb_task_cron\`
@@ -62,7 +64,9 @@ export async function ensureTaskCronLogRetentionColumn(connection: mysql.Connect
 /** 获取跨进程 Schema 迁移锁，避免多个发布任务同时执行 DDL 和写入迁移台账。 */
 export async function acquireSchemaMigrationLock(connection: mysql.Connection): Promise<void> {
     const [rows] = await connection.query<LockRow[]>('SELECT GET_LOCK(?, 30) AS acquired', [SCHEMA_MIGRATION_LOCK_NAME])
-    if (Number(rows[0]?.acquired) !== 1) throw new Error('获取 Task Schema 迁移锁超时，请稍后重试')
+    if (Number(rows[0]?.acquired) !== 1) {
+        throw new Error('获取 Task Schema 迁移锁超时，请稍后重试')
+    }
 }
 
 /** 释放跨进程 Schema 迁移锁。 */
@@ -111,7 +115,9 @@ export async function applySchema(): Promise<void> {
                 filename
             ])
             if (rows.length) {
-                if (rows[0].checksum !== checksum) throw new Error(`已应用增量 SQL 校验和变化：${filename}`)
+                if (rows[0].checksum !== checksum) {
+                    throw new Error(`已应用增量 SQL 校验和变化：${filename}`)
+                }
                 process.stdout.write(`Schema migration skipped: ${filename}\n`)
                 continue
             }

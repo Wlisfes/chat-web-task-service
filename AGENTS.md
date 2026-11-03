@@ -42,6 +42,7 @@
 - NestJS 类使用明确职责后缀，例如 `SkylineService`、`GatewayController`、`NacosModule`。
 - 禁止无意义的导出别名，例如 `export { TbSkylineUser as tbSkylineUser }`。
 - 日志、校验消息、Swagger 描述和面向维护者的错误信息使用中文；代码标识符使用英文。
+- `if`、`else`、`for`、`while` 的执行体必须使用花括号，禁止省略花括号写成单行。例如禁止 `if (!key) throw new BadRequestException('对象键不能为空')`，必须写成花括号块。
 
 ## 模块边界
 

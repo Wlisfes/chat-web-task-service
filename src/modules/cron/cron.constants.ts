@@ -42,9 +42,6 @@ export const TASK_DEFAULT_MAX_ATTEMPTS = 8
 /** 新建任务默认保留 7 天已结束的运行日志。 */
 export const TASK_DEFAULT_LOG_RETENTION = Schema.TbTaskCronLogRetention.DAY_7
 
-/** 按任务配置清理过期运行日志的间隔。 */
-export const TASK_LOG_PURGE_INTERVAL_MS = 60 * 60 * 1000
-
 /** 系统内置周期任务定义；服务启动时幂等写入，页面不提供新增和删除入口。 */
 export const TASK_CRON_DEFINITIONS: ReadonlyArray<
     Pick<
