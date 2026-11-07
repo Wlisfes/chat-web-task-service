@@ -7,6 +7,7 @@ const { isRetryableTaskError, TaskNonRetryableError } = require('../dist/modules
 const constants = require('../dist/modules/cron/cron.constants')
 const { CurrencyExchangeTaskHandler } = require('../dist/modules/cron/handlers/currency-exchange.handler')
 const { SrmWalletSyncTaskHandler } = require('../dist/modules/cron/handlers/srm-wallet-sync.handler')
+const { CrmWalletSyncTaskHandler } = require('../dist/modules/cron/handlers/crm-wallet-sync.handler')
 const { getActiveRequestId } = require('@wlisfes/chat-web-base-schema/request-context')
 
 const logger = { log() {}, warn() {}, error() {} }
@@ -257,6 +258,20 @@ test('供应商余额同步任务：每分钟执行，结果只保存统计数�
     assert.equal(idle.summary, '本轮处理 4 个余额变化账户，数据库余额均已一致，无需更新 4 个')
     const empty = await createWalletHandler({ total: 0, updated: 0, unchanged: 0, restored: 0, invalidUserKeyIds: [] }).execute()
     assert.equal(empty.summary, '本轮无待同步余额')
+})
+
+test('客户余额同步任务：每分钟执行，结果只保存统计数量', async () => {
+    const definition = constants.TASK_CRON_DEFINITIONS.find(item => item.handler === 'datetask-sync-crm-wallet-balance')
+    assert.equal(definition.taskId, '2149446185344106499')
+    assert.equal(definition.cron, '0 * * * * *')
+    assert.equal(definition.module, 'TASK_FINANCE')
+    assert.equal(definition.maxAttempts, 2)
+    const financeFeignClient = {
+        httpBaseFinanceSyncCrmUserWallet: async () => ({ total: 0, updated: 0, unchanged: 0, restored: 0, invalidUserKeyIds: [] })
+    }
+    const configService = { get: key => (key === 'gateway.feign.service_token' ? 'service-token' : undefined) }
+    const result = await new CrmWalletSyncTaskHandler(configService, financeFeignClient, logger).execute()
+    assert.equal(result.summary, '本轮无待同步余额')
 })
 
 test('运行日志清理写死在每天 02:30:00，不进入任务表', () => {
