@@ -9,6 +9,7 @@ import { CronService } from '@/modules/cron/cron.service'
 import { CurrencyExchangeTaskHandler } from '@/modules/cron/handlers/currency-exchange.handler'
 import { ExecutionLogPurgeTaskHandler } from '@/modules/cron/handlers/execution-log-purge.handler'
 import { SmsTaskEnqueueTaskHandler } from '@/modules/cron/handlers/sms-task-enqueue.handler'
+import { CrmWalletSyncTaskHandler } from '@/modules/cron/handlers/crm-wallet-sync.handler'
 import { SrmWalletSyncTaskHandler } from '@/modules/cron/handlers/srm-wallet-sync.handler'
 import { TASK_HANDLERS, TaskHandler } from '@/modules/cron/handlers/task-handler.interface'
 
@@ -24,11 +25,12 @@ import { TASK_HANDLERS, TaskHandler } from '@/modules/cron/handlers/task-handler
         CronService,
         CurrencyExchangeTaskHandler,
         SrmWalletSyncTaskHandler,
+        CrmWalletSyncTaskHandler,
         SmsTaskEnqueueTaskHandler,
         ExecutionLogPurgeTaskHandler,
         {
             provide: TASK_HANDLERS,
-            inject: [CurrencyExchangeTaskHandler, SrmWalletSyncTaskHandler, SmsTaskEnqueueTaskHandler],
+            inject: [CurrencyExchangeTaskHandler, SrmWalletSyncTaskHandler, CrmWalletSyncTaskHandler, SmsTaskEnqueueTaskHandler],
             useFactory: (...handlers: TaskHandler[]) => handlers
         }
     ],

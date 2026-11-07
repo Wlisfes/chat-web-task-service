@@ -24,6 +24,18 @@ export const SRM_WALLET_SYNC_TASK_CRON = '0 * * * * *'
 /** 余额同步每分钟都会再次执行，失败只重试 1 次，避免重试堆积。 */
 export const SRM_WALLET_SYNC_TASK_MAX_ATTEMPTS = 2
 
+/** 客户钱包余额同步任务的稳定标识。 */
+export const CRM_WALLET_SYNC_TASK_ID = '2149446185344106499'
+
+/** 客户钱包余额同步任务处理器标识。 */
+export const CRM_WALLET_SYNC_TASK_HANDLER = 'datetask-sync-crm-wallet-balance'
+
+/** 每分钟第 0 秒执行一次。 */
+export const CRM_WALLET_SYNC_TASK_CRON = '0 * * * * *'
+
+/** 余额同步每分钟都会再次执行，失败只重试 1 次，避免重试堆积。 */
+export const CRM_WALLET_SYNC_TASK_MAX_ATTEMPTS = 2
+
 /** 短信任务入队扫描的稳定标识。 */
 export const SMS_TASK_ENQUEUE_TASK_ID = '2149446185344106498'
 
@@ -71,6 +83,18 @@ export const TASK_CRON_DEFINITIONS: ReadonlyArray<
         status: Schema.TbTaskCronStatus.ENABLE,
         body: {},
         maxAttempts: SRM_WALLET_SYNC_TASK_MAX_ATTEMPTS,
+        logRetention: TASK_DEFAULT_LOG_RETENTION
+    },
+    {
+        taskId: CRM_WALLET_SYNC_TASK_ID,
+        taskName: '客户余额同步定时任务',
+        module: Schema.TbTaskCronModule.TASK_FINANCE,
+        handler: CRM_WALLET_SYNC_TASK_HANDLER,
+        comment: '每分钟触发 Finance 服务把 Redis 中发生变化的客户钱包余额同步到钱包表',
+        cron: CRM_WALLET_SYNC_TASK_CRON,
+        status: Schema.TbTaskCronStatus.ENABLE,
+        body: {},
+        maxAttempts: CRM_WALLET_SYNC_TASK_MAX_ATTEMPTS,
         logRetention: TASK_DEFAULT_LOG_RETENTION
     },
     {
