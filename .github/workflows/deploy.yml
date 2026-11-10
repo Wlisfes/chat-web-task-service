@@ -171,8 +171,7 @@ jobs:
               run: |
                   set -eu
                   docker exec chat-web-task-service node -e "require('http').get('http://127.0.0.1:5010/health/live', response => process.exit(response.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
-                  published_ports=$(docker port chat-web-task-service 2>/dev/null || true)
-                  [ -z "$published_ports" ] || { echo "Task 服务不得发布宿主机端口：$published_ports" >&2; exit 1; }
+                  docker port chat-web-task-service 5010/tcp | grep -q ':5010' || { echo 'Task 服务未发布宿主机端口 5010' >&2; exit 1; }
                   # Task 只允许服务间 /feign/task 调用，公网业务入口 /api/task 必须不可达。
                   output=$(docker exec chat-web-gateway-service node -e '
                     fetch("http://127.0.0.1:5000/api/task/health/live")

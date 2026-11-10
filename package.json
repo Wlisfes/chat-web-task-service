@@ -1,6 +1,6 @@
 {
     "name": "chat-web-task-service",
-    "version": "0.0.17",
+    "version": "0.0.18",
     "description": "",
     "author": "Wlisfes",
     "private": true,
@@ -30,7 +30,7 @@
         "@nestjs/schedule": "6.1.3",
         "@nestjs/swagger": "11.4.6",
         "@nestjs/typeorm": "11.0.3",
-        "@wlisfes/chat-web-base-schema": "1.7.35",
+        "@wlisfes/chat-web-base-schema": "1.7.38",
         "amqplib": "2.2.0",
         "class-transformer": "0.5.1",
         "class-validator": "0.15.1",

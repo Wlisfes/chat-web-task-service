@@ -19,8 +19,10 @@ services:
             NODE_ENV: production
             PORT: 5010
             TZ: ${TZ:-Asia/Shanghai}
-        # Task 服务的接口不对外暴露：不发布宿主机端口，只在 Docker 内部网络开放，
+        # 与其他服务一致发布宿主机端口，由 Windows 防火墙限制入口；接口仍不经 Gateway /api 对外暴露，
         # Gateway 通过 Nacos 注册的容器网卡 IP 访问 /feign/task。
+        ports:
+            - '${HOST_BIND_IP:-0.0.0.0}:5010:5010'
         expose:
             - '5010'
         networks:

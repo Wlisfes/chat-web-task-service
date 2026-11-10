@@ -122,19 +122,13 @@ if ! docker exec "$CONTAINER" node -e "require('http').get('http://127.0.0.1:501
     exit 1
 fi
 
-# Task 服务不发布宿主机端口，必须注册容器网卡 IP；误配 NACOS_REGISTER_IP 会让 Gateway 访问不到实例，直接拒绝部署。
+# Task 服务必须注册容器网卡 IP；误配 NACOS_REGISTER_IP 会让 Gateway 访问不到实例，直接拒绝部署。
 if grep -q '^NACOS_REGISTER_IP=' .env; then
     echo "Task 服务不得配置 NACOS_REGISTER_IP，请从 $(pwd)/.env 删除该项。" >&2
     rollback
     exit 1
 fi
 
-published_ports=$(docker port "$CONTAINER" 2>/dev/null || true)
-if [ -n "$published_ports" ]; then
-    echo "Task 服务不得发布宿主机端口：$published_ports" >&2
-    rollback
-    exit 1
-fi
 actual_image=$(docker inspect --format '{{.Config.Image}}' "$CONTAINER")
 if [ "$actual_image" != "$IMAGE" ]; then
     echo "Running image mismatch: expected $IMAGE, got $actual_image" >&2
