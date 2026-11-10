@@ -3,7 +3,7 @@
 ## 职责与边界
 
 - 负责全部周期任务的调度与执行；业务数据（汇率等）由下游服务保存，task 库只存调度定义和执行状态。
-- 接口不对外暴露：Gateway 只配置 `/feign/task`，不配置 `/api/task`；容器不发布宿主机端口，不配置 `NACOS_REGISTER_IP`。
+- 接口不对外暴露：Gateway 只配置 `/feign/task`，不配置 `/api/task`；容器与其他服务一致发布宿主机端口 `5010`（由 Windows 防火墙限制入口），不配置 `NACOS_REGISTER_IP`。
 - Skyline 崩溃不影响调度与执行，只会让管理页面暂时不可用；本服务多实例部署时任一实例崩溃不影响其他实例。
 
 ## Nacos 配置（`chat-web-task-service.yaml`）
@@ -74,7 +74,7 @@ ON DUPLICATE KEY UPDATE cron = VALUES(cron), status = VALUES(status), last_time 
 
 ## 上线验证
 
-1. `docker port chat-web-task-service` 无输出（未发布宿主机端口）。
+1. `docker port chat-web-task-service` 输出 `5010/tcp -> 0.0.0.0:5010`。
 2. `docker exec chat-web-task-service node -e "require('http').get('http://127.0.0.1:5010/health/live', r => process.exit(r.statusCode === 200 ? 0 : 1))"` 返回 0。
 3. 公网 `https://chat-web.lisfes.cn/api/task/health/live` 返回业务 404。
 4. RabbitMQ 管理台 `/chat-task` 虚拟主机中可见 `chat.task.execute` 及其消费者。

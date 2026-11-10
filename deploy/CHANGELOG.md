@@ -1,5 +1,12 @@
 # 部署变更记录
 
+## 2026-11-10：发布宿主机端口与 Nacos 长轮询超时
+
+- 影响机器：`chat-home-server`。
+- 变更内容：Compose 增加 `5010` 宿主机端口映射，与其他服务保持一致；升级 `@wlisfes/chat-web-base-schema` 到 1.7.38，Nacos 配置长轮询客户端超时由 40 秒延长到 180 秒。
+- 验证命令：`docker port chat-web-task-service` 输出 `5010/tcp -> 0.0.0.0:5010`；容器健康检查通过。
+- 回滚方法：恢复上一版本 Compose 并回退到上一镜像。
+
 ## 2026-10-12：修复 RabbitMQ 首次连接未声明拓扑
 
 - 影响机器：`chat-home-server`。
