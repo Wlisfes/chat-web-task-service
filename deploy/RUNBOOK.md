@@ -57,21 +57,7 @@ Skyline 的 Nacos 配置需补充 `gateway.feign.task_timeout: 15000`：手动�
 
 ## 从 Skyline 迁移任务数据
 
-首次上线、确认本服务已启动并完成建表后，在 MySQL 中执行一次（需要能同时访问两个库的管理员账号）：
-
-```sql
-INSERT INTO `chat-web-task`.`tb_task_cron`
-    (task_id, task_name, module, handler, comment, cron, status, body, max_attempts, last_time, next_time, create_by, modify_by)
-SELECT task_id, task_name, 'TASK_FINANCE', handler, comment, cron,
-       CASE WHEN status IN ('running', 'wait') THEN 'enable' ELSE 'disable' END,
-       body, 8, last_time, next_time, create_by, modify_by
-  FROM `chat-web-skyline`.`tb_skyline_datetask_system`
-ON DUPLICATE KEY UPDATE cron = VALUES(cron), status = VALUES(status), last_time = VALUES(last_time);
-```
-
-- 执行后重启 Task 服务，使调度器按迁移后的 Cron 和状态重新加载。
-- Skyline 的历史执行日志不迁移，旧表 `tb_skyline_datetask_system`、`tb_skyline_datetask_log` 保留到确认稳定后再删除。
-
+迁移已完成。来源表 `tb_skyline_datetask_system`、`tb_skyline_datetask_log` 已删除，不要再执行旧的插入语句。当前任务和执行记录分别在 `tb_task_cron`、`tb_task_execution`。
 ## 上线验证
 
 1. `docker port chat-web-task-service` 输出 `5010/tcp -> 0.0.0.0:5010`。
