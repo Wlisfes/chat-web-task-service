@@ -100,7 +100,7 @@ export const TASK_CRON_DEFINITIONS: ReadonlyArray<
     {
         taskId: SMS_TASK_ENQUEUE_TASK_ID,
         taskName: '短信任务入队扫描',
-        module: Schema.TbTaskCronModule.TASK_SYSTEM,
+        module: Schema.TbTaskCronModule.TASK_CRM,
         handler: SMS_TASK_ENQUEUE_TASK_HANDLER,
         comment: '每小时触发 SMS 服务，把进入 3 小时发送窗口的待发送任务推入短信任务队列',
         cron: SMS_TASK_ENQUEUE_TASK_CRON,

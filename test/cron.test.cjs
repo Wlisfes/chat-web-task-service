@@ -304,3 +304,8 @@ test('过期运行日志只删除已结束且超过保留时长的记录', async
     assert.deepEqual(deleted[0].status._value, ['success', 'failed'])
     assert.equal(deleted[0].createTime._value.toISOString(), '2026-11-02T12:00:00.000Z')
 })
+test('短信任务入队扫描归类到 CRM 模块', () => {
+    const definition = constants.TASK_CRON_DEFINITIONS.find(item => item.handler === 'datetask-enqueue-sms-task')
+    assert.equal(definition.taskId, '2149446185344106498')
+    assert.equal(definition.module, 'TASK_CRM')
+})
